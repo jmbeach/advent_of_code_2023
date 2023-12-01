@@ -1,3 +1,5 @@
+mod pt2;
+
 use std::fs;
 
 fn main() {
