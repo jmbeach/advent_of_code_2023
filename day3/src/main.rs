@@ -1,8 +1,12 @@
 use std::cmp::{max, min};
 use std::collections::HashSet;
+use std::fs;
 
 fn main() {
-    println!("Hello, world!");
+    let mut schematic = Schematic::new(fs::read_to_string("./input.txt").unwrap().as_str());
+    schematic.get_part_numbers();
+    let sum = schematic.sum;
+    println!("Result: {sum}")
 }
 
 struct Schematic {
