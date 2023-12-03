@@ -4,7 +4,7 @@ use std::fs;
 
 fn main() {
     let raw_text = fs::read_to_string("./input.txt").unwrap();
-    let lines: Vec<&str> = raw_text.lines().map(|x| x).collect();
+    let lines: Vec<&str> = raw_text.lines().collect();
     let result = sum_calibrations(clean_calibrations(&lines));
     println!("Result: {result}")
 }
