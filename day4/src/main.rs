@@ -1,7 +1,9 @@
 use std::collections::HashSet;
+use std::fs;
 
 fn main() {
-    println!("Hello, world!");
+    let total_score: i32 = fs::read_to_string("./input.txt").unwrap().lines().map(|line| ScratchCard::new(line).score()).sum();
+    println!("Result: {total_score}")
 }
 
 struct ScratchCard {
@@ -25,6 +27,19 @@ impl ScratchCard {
             winning_numbers
         }
     }
+
+    pub fn score(&self) -> i32 {
+        let mut winning_numbers: i32 = -1;
+        for number in self.numbers.clone() {
+            if self.winning_numbers.contains(&number) {
+                winning_numbers += 1;
+            }
+        }
+        match winning_numbers {
+            -1 => 0,
+            _ => i32::pow(2, winning_numbers as u32)
+        }
+    }
 }
 
 #[cfg(test)]
@@ -38,5 +53,6 @@ mod tests4 {
         assert_eq!(card.numbers, vec!(41, 48, 83, 86, 17));
         let winning_set: HashSet<i32> = vec!(83, 86, 6, 31, 17, 9, 48, 53).into_iter().collect();
         assert_eq!(card.winning_numbers, winning_set);
+        assert_eq!(card.score(), 8)
     }
 }
