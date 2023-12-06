@@ -1,3 +1,5 @@
+mod pt2;
+
 use std::collections::HashSet;
 use std::fs;
 
@@ -7,8 +9,8 @@ fn main() {
 }
 
 struct ScratchCard {
-    numbers: Vec<i32>,
-    winning_numbers: HashSet<i32>
+    pub numbers: Vec<i32>,
+    pub winning_numbers: HashSet<i32>,
 }
 
 impl ScratchCard {
@@ -39,6 +41,16 @@ impl ScratchCard {
             -1 => 0,
             _ => i32::pow(2, winning_numbers as u32)
         }
+    }
+
+    pub fn winning_count(&self) -> i32 {
+        let mut winning_numbers: i32 = 0;
+        for number in self.numbers.clone() {
+            if self.winning_numbers.contains(&number) {
+                winning_numbers += 1;
+            }
+        }
+        winning_numbers
     }
 }
 
