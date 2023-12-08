@@ -1,11 +1,14 @@
 use std::cmp::Reverse;
 use std::collections::{BinaryHeap, HashMap};
+use std::fs;
 use structs::{AlmanacMap, AlmanacToFromRange, SeedsAndMaps};
 
 mod structs;
 
 fn main() {
-    println!("Hello, world!");
+    let seeds_and_maps = parse_input(fs::read_to_string("input.txt").unwrap().as_str());
+    let smallest = find_smallest(seeds_and_maps);
+    println!("Result: {smallest}")
 }
 
 fn parse_input(input: &str) -> SeedsAndMaps {
@@ -13,8 +16,8 @@ fn parse_input(input: &str) -> SeedsAndMaps {
 
     let lines: Vec<&str> = input.lines().collect();
     // first line is seeds
-    let seeds: Vec<i32> = lines[0].replace("seeds: ", "").trim()
-        .split(" ").map(|num| num.parse::<i32>().unwrap()).collect();
+    let seeds: Vec<i64> = lines[0].replace("seeds: ", "").trim()
+        .split(" ").map(|num| num.parse::<i64>().unwrap()).collect();
     let mut line_i = 1;
     let mut current_from: String = String::from("");
     while line_i < lines.len() {
@@ -24,7 +27,7 @@ fn parse_input(input: &str) -> SeedsAndMaps {
             line if line.ends_with("map:") => {
                 let parts_raw = line.replace(" map:", "");
                 let parts: Vec<&str> = parts_raw.split("-to-").collect();
-                let from = String::from(parts[0].clone());
+                let from = String::from(parts[0]);
                 current_from = from.clone();
                 maps.insert(from.clone(), AlmanacMap {
                     source_title: from,
@@ -35,8 +38,8 @@ fn parse_input(input: &str) -> SeedsAndMaps {
             "" => {}
             // ex: 50 98 2
             _ => {
-                let nums: Vec<i32> = line.split_whitespace()
-                    .map(|num| num.parse::<i32>().unwrap()).collect();
+                let nums: Vec<i64> = line.split_whitespace()
+                    .map(|num| num.parse::<i64>().unwrap()).collect();
                 let current = maps.get_mut(current_from.as_str()).unwrap();
                 current.mapped.push(AlmanacToFromRange {
                     to: nums[0],
@@ -53,8 +56,8 @@ fn parse_input(input: &str) -> SeedsAndMaps {
     }
 }
 
-fn find_smallest(seeds_and_maps: SeedsAndMaps) -> i32 {
-    let mut locations: BinaryHeap<Reverse<i32>> = BinaryHeap::new();
+fn find_smallest(seeds_and_maps: SeedsAndMaps) -> i64 {
+    let mut locations: BinaryHeap<Reverse<i64>> = BinaryHeap::new();
     for seed in seeds_and_maps.seeds {
         let mut from_value = seed.clone();
         let mut from_key: String = String::from("seed");
@@ -88,7 +91,7 @@ pub mod tests5 {
 
     #[test]
     fn basic_test() {
-        let mut seeds_and_maps = parse_input("seeds: 79 14 55 13
+        let seeds_and_maps = parse_input("seeds: 79 14 55 13
 
 seed-to-soil map:
 50 98 2

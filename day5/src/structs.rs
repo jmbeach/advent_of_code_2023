@@ -3,13 +3,13 @@ use std::collections::{BinaryHeap, HashMap};
 
 #[derive(Copy, Clone)]
 pub struct AlmanacToFromRange {
-    pub to: i32,
-    pub from: i32,
-    pub range: i32,
+    pub to: i64,
+    pub from: i64,
+    pub range: i64,
 }
 
 impl AlmanacToFromRange {
-    pub fn get_corresponding(&self, val: &i32) -> i32 {
+    pub fn get_corresponding(&self, val: &i64) -> i64 {
         if self.is_in_from_range(val) {
             let distance = val - self.from;
             return self.to + distance
@@ -17,8 +17,8 @@ impl AlmanacToFromRange {
         val.clone()
     }
 
-    pub fn is_in_from_range(&self, val: &i32) -> bool {
-        let end: &i32 = &(self.from + (self.range - 1));
+    pub fn is_in_from_range(&self, val: &i64) -> bool {
+        let end: &i64 = &(self.from + (self.range - 1));
         &self.from <= val && end >= val
     }
 }
@@ -50,17 +50,7 @@ pub struct AlmanacMap {
     pub mapped: BinaryHeap<AlmanacToFromRange>,
 }
 
-impl AlmanacMap {
-    pub fn add_range(mut self, source_start: i32, dest_start: i32, range_size: i32) {
-        self.mapped.push(AlmanacToFromRange {
-            from: source_start,
-            to: dest_start,
-            range: range_size,
-        });
-    }
-}
-
 pub struct SeedsAndMaps {
-    pub seeds: Vec<i32>,
+    pub seeds: Vec<i64>,
     pub maps: HashMap<String, AlmanacMap>,
 }
