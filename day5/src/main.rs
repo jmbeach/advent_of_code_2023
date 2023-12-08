@@ -1,67 +1,11 @@
-use std::cmp::Ordering;
+use std::cmp::Reverse;
 use std::collections::{BinaryHeap, HashMap};
+use structs::{AlmanacMap, AlmanacToFromRange, SeedsAndMaps};
+
+mod structs;
 
 fn main() {
     println!("Hello, world!");
-}
-
-struct AlmanacToFromRange {
-    pub to: i32,
-    pub from: i32,
-    pub range: i32,
-}
-
-impl Eq for AlmanacToFromRange {}
-
-impl PartialEq<Self> for AlmanacToFromRange {
-    fn eq(&self, other: &Self) -> bool {
-        self.from == other.from
-    }
-}
-
-impl PartialOrd<Self> for AlmanacToFromRange {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-impl Ord for AlmanacToFromRange {
-    fn cmp(&self, other: &Self) -> Ordering {
-        other.from.cmp(&self.from)
-    }
-}
-
-struct AlmanacMap {
-    pub source_title: String,
-    pub destination_title: String,
-    mapped: BinaryHeap<AlmanacToFromRange>,
-}
-
-impl AlmanacMap {
-    pub fn add_range(mut self, source_start: i32, dest_start: i32, range_size: i32) {
-        self.mapped.push(AlmanacToFromRange {
-            from: source_start,
-            to: dest_start,
-            range: range_size,
-        });
-    }
-}
-
-impl Clone for AlmanacMap {
-    fn clone(&self) -> Self {
-        AlmanacMap {
-            source_title: self.source_title.clone(),
-            destination_title: self.destination_title.clone(),
-            mapped: self.mapped.clone()
-        }
-    }
-}
-
-impl Copy for AlmanacMap {}
-
-struct SeedsAndMaps {
-    seeds: Vec<i32>,
-    maps: HashMap<String, AlmanacMap>,
 }
 
 fn parse_input(input: &str) -> SeedsAndMaps {
@@ -110,29 +54,41 @@ fn parse_input(input: &str) -> SeedsAndMaps {
 }
 
 fn find_smallest(seeds_and_maps: SeedsAndMaps) -> i32 {
-    let mut locations: BinaryHeap<i32> = BinaryHeap::new();
-    let mut seed_map: AlmanacMap = seeds_and_maps.maps.get("seed").unwrap().clone();
+    let mut locations: BinaryHeap<Reverse<i32>> = BinaryHeap::new();
     for seed in seeds_and_maps.seeds {
-        let mut next_range = seed_map.mapped.pop();
-        // short circuit when we get any potential match
-        while next_range.is_some_and(|range| !range.from + range.range < seed) {
-            next_range = seed_map.mapped.pop();
+        let mut from_value = seed.clone();
+        let mut from_key: String = String::from("seed");
+        while from_key.as_str() != "location" {
+            let mut current_map: AlmanacMap = seeds_and_maps.maps.get(from_key.as_str()).unwrap().clone();
+            let mut next_range = current_map.mapped.pop();
+
+            // short circuit when we get any potential match
+            while next_range.is_some_and(|range| range.from + (range.range - 1) < from_value) {
+                next_range = current_map.mapped.pop();
+            }
+
+            match next_range {
+                // the seed maps directly to the "to". from_value stays the same.
+                None => {},
+                Some(range) => {
+                    from_value = range.get_corresponding(&from_value);
+                }
+            }
+
+            from_key = current_map.destination_title.clone();
         }
-        match next_range {
-            None => {}, // the seed maps directly to the "to"
-            Some(range) => {} // check the range.
-        }
+        locations.push(Reverse(from_value))
     }
-    locations.pop().unwrap()
+    locations.pop().unwrap().0
 }
 
 #[cfg(test)]
 pub mod tests5 {
-    use crate::parse_input;
+    use crate::{find_smallest, parse_input};
 
     #[test]
     fn basic_test() {
-        let mut seedsAndMaps = parse_input("seeds: 79 14 55 13
+        let mut seeds_and_maps = parse_input("seeds: 79 14 55 13
 
 seed-to-soil map:
 50 98 2
@@ -165,8 +121,8 @@ temperature-to-humidity map:
 humidity-to-location map:
 60 56 37
 56 93 4");
-        assert_eq!(seedsAndMaps.seeds, vec!(79, 14, 55, 13));
-        let almanac_map = seedsAndMaps.maps.get_mut("seed").unwrap();
+        assert_eq!(seeds_and_maps.seeds, vec!(79, 14, 55, 13));
+        let mut almanac_map = seeds_and_maps.maps.get("seed").unwrap().clone();
         assert_eq!(almanac_map.destination_title, "soil");
         assert_eq!(almanac_map.source_title, "seed");
         let first_range = almanac_map.mapped.pop().unwrap();
@@ -177,5 +133,7 @@ humidity-to-location map:
         assert_eq!(next_range.from, 98);
         assert_eq!(next_range.to, 50);
         assert_eq!(next_range.range, 2);
+        let smallest_location = find_smallest(seeds_and_maps);
+        assert_eq!(smallest_location, 35);
     }
 }
