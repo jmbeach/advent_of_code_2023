@@ -47,6 +47,18 @@ impl AlmanacMap {
     }
 }
 
+impl Clone for AlmanacMap {
+    fn clone(&self) -> Self {
+        AlmanacMap {
+            source_title: self.source_title.clone(),
+            destination_title: self.destination_title.clone(),
+            mapped: self.mapped.clone()
+        }
+    }
+}
+
+impl Copy for AlmanacMap {}
+
 struct SeedsAndMaps {
     seeds: Vec<i32>,
     maps: HashMap<String, AlmanacMap>,
@@ -97,6 +109,23 @@ fn parse_input(input: &str) -> SeedsAndMaps {
     }
 }
 
+fn find_smallest(seeds_and_maps: SeedsAndMaps) -> i32 {
+    let mut locations: BinaryHeap<i32> = BinaryHeap::new();
+    let mut seed_map: AlmanacMap = seeds_and_maps.maps.get("seed").unwrap().clone();
+    for seed in seeds_and_maps.seeds {
+        let mut next_range = seed_map.mapped.pop();
+        // short circuit when we get any potential match
+        while next_range.is_some_and(|range| !range.from + range.range < seed) {
+            next_range = seed_map.mapped.pop();
+        }
+        match next_range {
+            None => {}, // the seed maps directly to the "to"
+            Some(range) => {} // check the range.
+        }
+    }
+    locations.pop().unwrap()
+}
+
 #[cfg(test)]
 pub mod tests5 {
     use crate::parse_input;
@@ -144,5 +173,9 @@ humidity-to-location map:
         assert_eq!(first_range.from, 50);
         assert_eq!(first_range.to, 52);
         assert_eq!(first_range.range, 48);
+        let next_range = almanac_map.mapped.pop().unwrap();
+        assert_eq!(next_range.from, 98);
+        assert_eq!(next_range.to, 50);
+        assert_eq!(next_range.range, 2);
     }
 }
