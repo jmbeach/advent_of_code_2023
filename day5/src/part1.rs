@@ -1,14 +1,9 @@
 use std::cmp::Reverse;
 use std::collections::{BinaryHeap, HashMap};
-use std::fs;
-use structs::{AlmanacMap, AlmanacToFromRange, SeedsAndMaps};
+use crate::structs::{AlmanacMap, AlmanacToFromRange, SeedsAndMaps};
 
-mod structs;
-
-fn main() {
-    let seeds_and_maps = parse_input(fs::read_to_string("input.txt").unwrap().as_str());
-    let smallest = find_smallest(seeds_and_maps);
-    println!("Result: {smallest}")
+pub fn part1(input: &str) -> i64 {
+    find_smallest(parse_input(input))
 }
 
 fn parse_input(input: &str) -> SeedsAndMaps {
@@ -87,7 +82,7 @@ fn find_smallest(seeds_and_maps: SeedsAndMaps) -> i64 {
 
 #[cfg(test)]
 pub mod tests5 {
-    use crate::{find_smallest, parse_input};
+    use crate::part1::{find_smallest, parse_input};
 
     #[test]
     fn basic_test() {

@@ -1,0 +1,12 @@
+[workspace]
+resolver = "2"
+
+members = ["day*"]
+
+[workspace.dependencies]
+divan = "0.1.4"
+dhat = "0.3.2"
+
+[profile.dhat]
+inherits = "release"
+debug = 1
